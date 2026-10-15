@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#080808">
+
+  <title>Administración — Cocina al Fuego</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="./images/image2.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080808;
+      --panel: #111111;
+      --line: #282828;
+      --text: #f5f5f5;
+      --muted: #929292;
+      --green: #b9f4c7;
+      --amber: #f0d49a;
+      --red: #ffb4b4;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      font-size: 14px;
+      letter-spacing: -.015em;
+    }
+
+    button, input, select { font: inherit; }
+
+    button { cursor: pointer; }
+
+    .hidden { display: none !important; }
+
+    .topbar {
+      height: 76px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(18px, 4vw, 56px);
+      position: sticky;
+      top: 0;
+      background: rgba(8,8,8,.92);
+      backdrop-filter: blur(18px);
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -.05em;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #666;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+    }
+
+    .brand small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .btn {
+      border: 1px solid #373737;
+      background: #f3f3f3;
+      color: #111;
+      border-radius: 9px;
+      padding: 11px 15px;
+      font-weight: 650;
+      transition: .18s;
+    }
+
+    .btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn.secondary {
+      background: transparent;
+      color: #eee;
+      border-color: #353535;
+    }
+
+    .btn.secondary:hover { background: #171717; }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    main {
+      width: min(1400px, 100%);
+      margin: 0 auto;
+      padding: 44px clamp(18px, 4vw, 56px) 64px;
+    }
+
+    .eyebrow {
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: #999;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.04;
+      letter-spacing: -.065em;
+      margin: 12px 0;
+      font-weight: 650;
+    }
+
+    .intro {
+      color: #a2a2a2;
+      line-height: 1.7;
+      margin: 0;
+      max-width: 620px;
+    }
+
+    .heading-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .heading-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, #121212, #0d0d0d);
+      border-radius: 15px;
+      padding: 20px;
+      min-height: 122px;
+    }
+
+    .metric-label {
+      color: #a1a1a1;
+      font-size: 12px;
+    }
+
+    .metric-value {
+      font-size: 32px;
+      letter-spacing: -.06em;
+      font-weight: 650;
+      margin-top: 17px;
+    }
+
+    .metric-note {
+      font-size: 11px;
+      color: #737373;
+      margin-top: 5px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .field {
+      background: #111;
+      border: 1px solid #303030;
+      color: #eee;
+      border-radius: 9px;
+      padding: 11px 12px;
+      outline: none;
+      min-height: 42px;
+    }
+
+    .field:focus { border-color: #777; }
+
+    .search {
+      width: min(340px, 100%);
+    }
+
+    .select { min-width: 160px; }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #0d0d0d;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 880px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: #888;
+      background: #121212;
+      font-weight: 650;
+      padding: 15px 17px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 16px 17px;
+      border-bottom: 1px solid #202020;
+      vertical-align: middle;
+      color: #ddd;
+    }
+
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #121212; }
+
+    .lead-name {
+      font-weight: 650;
+      color: #f6f6f6;
+      margin-bottom: 5px;
+    }
+
+    .sub {
+      font-size: 11px;
+      color: #858585;
+      line-height: 1.6;
+    }
+
+    .date { white-space: nowrap; }
+
+    .status-select {
+      min-width: 145px;
+      padding: 8px 9px;
+      font-size: 12px;
+    }
+
+    .loading, .empty, .error {
+      padding: 50px 20px;
+      text-align: center;
+      color: #999;
+      line-height: 1.7;
+    }
+
+    .empty strong {
+      display: block;
+      color: #eee;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .notice {
+      padding: 13px 15px;
+      border: 1px solid #383838;
+      border-radius: 10px;
+      background: #121212;
+      color: #bbb;
+      font-size: 12px;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .notice.error {
+      border-color: #653838;
+      color: #ffc0c0;
+      text-align: left;
+    }
+
+    .login-screen {
+      min-height: calc(100vh - 140px);
+      display: grid;
+      place-items: center;
+      padding: 32px 18px;
+    }
+
+    .login-card {
+      width: min(430px, 100%);
+      border: 1px solid #292929;
+      background: linear-gradient(145deg, #121212, #0c0c0c);
+      border-radius: 20px;
+      padding: clamp(24px, 5vw, 38px);
+      box-shadow: 0 24px 90px #0008;
+    }
+
+    .login-card h1 {
+      font-size: 34px;
+      margin: 13px 0;
+    }
+
+    .login-card p {
+      color: #999;
+      line-height: 1.7;
+      margin: 0 0 26px;
+    }
+
+    .form-row {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 12px;
+      color: #c7c7c7;
+      font-weight: 550;
+    }
+
+    .form-row .field {
+      width: 100%;
+      min-height: 46px;
+    }
+
+    .login-card .btn {
+      width: 100%;
+      margin-top: 5px;
+      min-height: 46px;
+    }
+
+    .login-foot {
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      margin-top: 18px;
+      line-height: 1.7;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 10;
+      background: #f4f4f4;
+      color: #111;
+      padding: 13px 17px;
+      border-radius: 10px;
+      box-shadow: 0 12px 40px #0008;
+      max-width: calc(100vw - 36px);
+      font-size: 13px;
+    }
+
+    footer {
+      padding: 20px clamp(18px, 4vw, 56px);
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #656565;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 850px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .heading-row { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 520px) {
+      .topbar { height: 66px; }
+      .user-label { display: none; }
+      main { padding-top: 30px; }
+      .metrics { gap: 8px; }
+      .metric { padding: 15px; min-height: 108px; }
+      .metric-value { font-size: 28px; }
+      .filters { width: 100%; }
+      .search { width: 100%; flex: 1; }
+      .select { flex: 1; min-width: 0; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">CF</div>
+      <div>
+        COCINA AL FUEGO
+        <small>Panel de administración</small>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <span id="userLabel" class="user-label hidden"></span>
+      <button id="signOutBtn" class="btn secondary hidden" type="button">
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <!-- LOGIN -->
+  <section id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <div class="eyebrow">Área privada · Acceso autorizado</div>
+      <h1>Bienvenido.</h1>
+      <p>
+        Ingresá con tu cuenta de administración para consultar
+        y gestionar las solicitudes recibidas.
+      </p>
+
+      <div class="form-row">
+        <label for="email">Email de administrador</label>
+        <input
+          class="field"
+          id="email"
+          type="email"
+          autocomplete="username"
+          required
+          placeholder="tu-email@dominio.com"
+        >
+      </div>
+
+      <div class="form-row">
+        <label for="password">Contraseña</label>
+        <input
+          class="field"
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required
+          placeholder="Tu contraseña"
+        >
+      </div>
+
+      <div id="loginError" class="notice error hidden" role="alert"></div>
+
+      <button id="loginBtn" class="btn" type="submit">
+        Ingresar al panel
+      </button>
+
+      <div class="login-foot">
+        Acceso mediante Supabase Authentication.<br>
+        No compartas tus credenciales.
+      </div>
+    </form>
+  </section>
+
+  <!-- DASHBOARD -->
+  <main id="dashboard" class="hidden">
+    <div class="heading-row">
+      <div>
+        <div class="eyebrow">Centro de operaciones · Solicitudes</div>
+        <h1>Oportunidades.</h1>
+        <p class="intro">
+          Todas las consultas recibidas desde la web, organizadas
+          para hacerles seguimiento comercial.
+        </p>
+      </div>
+
+      <div class="heading-actions">
+        <button id="refreshBtn" class="btn secondary" type="button">
+          ↻ Actualizar
+        </button>
+        <button id="exportBtn" class="btn" type="button">
+          Exportar CSV ↗
+        </button>
+      </div>
+    </div>
+
+    <div id="dashboardNotice" class="notice hidden"></div>
+
+    <section class="metrics">
+      <article class="metric">
+        <div class="metric-label">Solicitudes totales</div>
+        <div id="metricTotal" class="metric-value">—</div>
+        <div class="metric-note">Registros recibidos</div>
+      </article>
+
+      <article class="metric">
+        <div class="metric-label">Nuevas</div>
+        <div id="metricNew" class="metric-value">—</div>
+        <div class="metric-note">Pendientes de contacto</div>
+      </article>
+
+      <article class="metric">
+        <div class="metric-label">Presupuestadas</div>
+        <div id="metricQuoted" class="metric-value">—</div>
+        <div class="metric-note">Propuestas enviadas</div>
+      </article>
+
+      <article class="metric">
+        <div class="metric-label">Cerradas</div>
+        <div id="metricClosed" class="metric-value">—</div>
+        <div class="metric-note">Oportunidades ganadas</div>
+      </article>
+    </section>
+
+    <div class="toolbar">
+      <div class="filters">
+        <input
+          id="searchInput"
+          class="field search"
+          type="search"
+          placeholder="Buscar por nombre, ubicación o tipo…"
+          aria-label="Buscar solicitudes"
+        >
+
+        <select id="statusFilter" class="field select" aria-label="Filtrar por estado">
+          <option value="">Todos los estados</option>
+          <option value="nuevo">Nuevo</option>
+          <option value="contactado">Contactado</option>
+          <option value="presupuestado">Presupuestado</option>
+          <option value="cerrado">Cerrado</option>
+          <option value="perdido">Perdido</option>
+        </select>
+      </div>
+
+      <span id="resultCount" class="sub">Solicitudes</span>
+    </div>
+
+    <section class="table-wrap">
+      <div id="loadingState" class="loading">
+        Cargando solicitudes…
+      </div>
+
+      <div id="errorState" class="error hidden"></div>
+
+      <div id="emptyState" class="empty hidden">
+        <strong>Todavía no hay solicitudes.</strong>
+        Cuando alguien complete el formulario de la web,
+        aparecerá acá.
+      </div>
+
+      <div id="tableScroll" class="table-scroll hidden">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente / evento</th>
+              <th>Fecha del evento</th>
+              <th>Invitados</th>
+              <th>Ubicación</th>
+              <th>Estado comercial</th>
+              <th>Recibido</th>
+            </tr>
+          </thead>
+          <tbody id="leadsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="sub" style="margin-top:14px">
+      Los cambios de estado se guardan en Supabase.
+      Los datos solo son accesibles para usuarios autorizados.
+    </p>
+  </main>
+
+  <footer>
+    <span>COCINA AL FUEGO</span>
+    <span>Administración privada · © <span id="year"></span></span>
+  </footer>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  // Configuración del proyecto Supabase.
+  // La publishable key puede estar en el frontend.
+  // NUNCA pongas una service_role o secret key en este archivo.
+  const SUPABASE_URL = 'https://ygrjzloxgdycxhymzing.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY =
+    'sb_publishable_RkpG1Sf7AqwiShsQpsukZA__Sojxo1Y';
+
+  const $ = id => document.getElementById(id);
+
+  $('year').textContent = new Date().getFullYear();
+
+  if (!window.supabase) {
+    $('loginError').textContent =
+      'No se pudo cargar Supabase. Revisá tu conexión e intentá nuevamente.';
+    $('loginError').classList.remove('hidden');
+    $('loginBtn').disabled = true;
+    return;
+  }
+
+  const db = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
+    {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    }
+  );
+
+  let allLeads = [];
+  let toastTimer;
+  let loadingLeads = false;
+
+  const STATUS_LABELS = {
+    nuevo: 'Nuevo',
+    contactado: 'Contactado',
+    presupuestado: 'Presupuestado',
+    cerrado: 'Cerrado',
+    perdido: 'Perdido'
+  };
+
+  function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[ch]));
+  }
+
+  function showToast(message) {
+    const el = $('toast');
+    el.textContent = message;
+    el.classList.remove('hidden');
+
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      el.classList.add('hidden');
+    }, 3500);
+  }
+
+  function setLoginError(message) {
+    $('loginError').textContent = message;
+    $('loginError').classList.toggle('hidden', !message);
+  }
+
+  function showLogin() {
+    $('loginScreen').classList.remove('hidden');
+    $('dashboard').classList.add('hidden');
+    $('signOutBtn').classList.add('hidden');
+    $('userLabel').classList.add('hidden');
+  }
+
+  function showDashboard(user) {
+    $('loginScreen').classList.add('hidden');
+    $('dashboard').classList.remove('hidden');
+    $('signOutBtn').classList.remove('hidden');
+    $('userLabel').classList.remove('hidden');
+    $('userLabel').textContent = user?.email || 'Sesión autenticada';
+  }
+
+  function normalizeStatus(value) {
+    const status = String(value || 'nuevo').toLowerCase();
+    return STATUS_LABELS[status] ? status : 'nuevo';
+  }
+
+  function fmtDate(value) {
+    if (!value) return '—';
+
+    const d = new Date(String(value).slice(0, 10) + 'T12:00:00');
+
+    if (Number.isNaN(d.getTime())) return escapeHTML(value);
+
+    return d.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  function fmtDateTime(value) {
+    if (!value) return '—';
+
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '—';
+
+    return d.toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  }
+
+  function updateMetrics() {
+    $('metricTotal').textContent = allLeads.length;
+
+    $('metricNew').textContent = allLeads.filter(
+      lead => normalizeStatus(lead.status) === 'nuevo'
+    ).length;
+
+    $('metricQuoted').textContent = allLeads.filter(
+      lead => normalizeStatus(lead.status) === 'presupuestado'
+    ).length;
+
+    $('metricClosed').textContent = allLeads.filter(
+      lead => normalizeStatus(lead.status) === 'cerrado'
+    ).length;
+  }
+
+  function getFilteredLeads() {
+    const query = $('searchInput').value.trim().toLocaleLowerCase('es-AR');
+    const selectedStatus = $('statusFilter').value;
+
+    return allLeads.filter(lead => {
+      const searchable = [
+        lead.name,
+        lead.event_type,
+        lead.location,
+        lead.email
+      ].join(' ').toLocaleLowerCase('es-AR');
+
+      const matchesQuery = !query || searchable.includes(query);
+      const matchesStatus =
+        !selectedStatus ||
+        normalizeStatus(lead.status) === selectedStatus;
+
+      return matchesQuery && matchesStatus;
+    });
+  }
+
+  function renderLeads() {
+    updateMetrics();
+
+    const leads = getFilteredLeads();
+
+    $('resultCount').textContent =
+      `${leads.length} ${leads.length === 1 ? 'solicitud' : 'solicitudes'}`;
+
+    $('loadingState').classList.add('hidden');
+    $('errorState').classList.add('hidden');
+
+    $('emptyState').classList.toggle('hidden', leads.length !== 0);
+    $('tableScroll').classList.toggle('hidden', leads.length === 0);
+
+    $('leadsBody').innerHTML = leads.map(lead => {
+      const status = normalizeStatus(lead.status);
+      const title = lead.event_type || 'Evento sin especificar';
+      const guests = lead.guests == null || lead.guests === ''
+        ? '—'
+        : escapeHTML(lead.guests);
+
+      const received = lead.created_at || lead.inserted_at || null;
+
+      const options = Object.entries(STATUS_LABELS).map(([key, label]) => `
+        <option value="${key}" ${status === key ? 'selected' : ''}>
+          ${label}
+        </option>
+      `).join('');
+
+      return `
+        <tr>
+          <td>
+            <div class="lead-name">${escapeHTML(lead.name || 'Sin nombre')}</div>
+            <div class="sub">${escapeHTML(title)}</div>
+            ${lead.email
+              ? `<div class="sub">${escapeHTML(lead.email)}</div>`
+              : ''}
+          </td>
+
+          <td class="date">${fmtDate(lead.event_date)}</td>
+          <td>${guests}</td>
+          <td>${escapeHTML(lead.location || '—')}</td>
+
+          <td>
+            <select
+              class="field status-select"
+              data-status-id="${escapeHTML(lead.id)}"
+              aria-label="Cambiar estado comercial"
+            >
+              ${options}
+            </select>
+          </td>
+
+          <td class="date sub">${fmtDateTime(received)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  async function loadLeads() {
+    if (loadingLeads) return;
+    loadingLeads = true;
+
+    $('loadingState').classList.remove('hidden');
+    $('errorState').classList.add('hidden');
+    $('emptyState').classList.add('hidden');
+    $('tableScroll').classList.add('hidden');
+
+    try {
+      let result = await db
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      // Si tu tabla no tiene created_at, intentamos sin ese orden.
+      if (result.error &&
+          /created_at|column/i.test(result.error.message || '')) {
+        result = await db.from('leads').select('*');
+      }
+
+      if (result.error) {
+        $('loadingState').classList.add('hidden');
+        $('errorState').classList.remove('hidden');
+
+        $('errorState').textContent =
+          'No se pudieron cargar las solicitudes. ' +
+          result.error.message +
+          ' Verificá las políticas RLS y el acceso del usuario administrador.';
+
+        return;
+      }
+
+      allLeads = result.data || [];
+
+      allLeads.sort((a, b) =>
+        String(b.created_at || b.inserted_at || '')
+          .localeCompare(String(a.created_at || a.inserted_at || ''))
+      );
+
+      renderLeads();
+
+    } catch (error) {
+      $('loadingState').classList.add('hidden');
+      $('errorState').classList.remove('hidden');
+      $('errorState').textContent =
+        'Error inesperado: ' + (error.message || 'desconocido');
+    } finally {
+      loadingLeads = false;
+    }
+  }
+
+  async function changeStatus(id, status, selectElement) {
+    const lead = allLeads.find(item => String(item.id) === String(id));
+    if (!lead) return;
+
+    const previousStatus = normalizeStatus(lead.status);
+    selectElement.disabled = true;
+
+    try {
+      const { error } = await db
+        .from('leads')
+        .update({ status })
+        .eq('id', id);
+
+      if (error) {
+        selectElement.value = previousStatus;
+        showToast('No se pudo guardar el estado: ' + error.message);
+        return;
+      }
+
+      lead.status = status;
+      renderLeads();
+      showToast('Estado comercial actualizado.');
+
+    } finally {
+      selectElement.disabled = false;
+    }
+  }
+
+  function exportCSV() {
+    const leads = getFilteredLeads();
+
+    if (!leads.length) {
+      showToast('No hay solicitudes para exportar.');
+      return;
+    }
+
+    const columns = [
+      ['Nombre', 'name'],
+      ['Tipo de evento', 'event_type'],
+      ['Fecha del evento', 'event_date'],
+      ['Invitados', 'guests'],
+      ['Ubicación', 'location'],
+      ['Email', 'email'],
+      ['Estado', 'status'],
+      ['Fecha de recepción', 'created_at']
+    ];
+
+    const cell = value => {
+      let text = String(value ?? '');
+
+      // Evita que valores exportados se interpreten como fórmulas en hojas de cálculo.
+      if (/^[=+\-@\t\r]/.test(text)) text = "'" + text;
+
+      return '"' + text.replace(/"/g, '""') + '"';
+    };
+
+    const csv = [
+      columns.map(([label]) => cell(label)).join(','),
+      ...leads.map(lead =>
+        columns.map(([, key]) => cell(lead[key])).join(',')
+      )
+    ].join('\r\n');
+
+    const blob = new Blob(['\ufeff' + csv], {
+      type: 'text/csv;charset=utf-8;'
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download =
+      'cocina-al-fuego-solicitudes-' +
+      new Date().toISOString().slice(0, 10) + '.csv';
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  $('loginForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    setLoginError('');
+
+    const button = $('loginBtn');
+    button.disabled = true;
+    button.textContent = 'Verificando…';
+
+    try {
+      const { error } = await db.auth.signInWithPassword({
+        email: $('email').value.trim(),
+        password: $('password').value
+      });
+
+      if (error) {
+        setLoginError(
+          'No se pudo iniciar sesión. Verificá tus credenciales y que ' +
+          'el usuario administrador exista en Supabase Authentication.'
+        );
+      }
+
+    } catch {
+      setLoginError('No se pudo conectar con el servicio de autenticación.');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Ingresar al panel';
+    }
+  });
+
+  $('signOutBtn').addEventListener('click', async () => {
+    const { error } = await db.auth.signOut();
+
+    if (error) {
+      showToast('No se pudo cerrar la sesión.');
+      return;
+    }
+
+    allLeads = [];
+    showLogin();
+    showToast('Sesión cerrada.');
+  });
+
+  $('refreshBtn').addEventListener('click', loadLeads);
+  $('exportBtn').addEventListener('click', exportCSV);
+  $('searchInput').addEventListener('input', renderLeads);
+  $('statusFilter').addEventListener('change', renderLeads);
+
+  $('leadsBody').addEventListener('change', event => {
+    const select = event.target.closest('[data-status-id]');
+    if (!select) return;
+
+    changeStatus(
+      select.dataset.statusId,
+      select.value,
+      select
+    );
+  });
+
+  // La sesión de Supabase se conserva al recargar la página.
+  db.auth.onAuthStateChange((event, session) => {
+    if (session?.user) {
+      showDashboard(session.user);
+
+      // SIGNED_IN inicia la carga; TOKEN_REFRESHED no la repite.
+      if (event === 'SIGNED_IN') loadLeads();
+    } else {
+      allLeads = [];
+      showLogin();
+    }
+  });
+
+  db.auth.getSession().then(({ data, error }) => {
+    if (error) {
+      showLogin();
+      return;
+    }
+
+    if (data.session?.user) {
+      showDashboard(data.session.user);
+      loadLeads();
+    } else {
+      showLogin();
+    }
+  });
+})();
+</script>
+</body>
+</html>
